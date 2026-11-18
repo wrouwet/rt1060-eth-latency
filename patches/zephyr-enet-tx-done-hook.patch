@@ -1,0 +1,27 @@
+diff --git a/drivers/ethernet/eth_nxp_enet.c b/drivers/ethernet/eth_nxp_enet.c
+index bc8c034d3..cfb7c9737 100644
+--- a/drivers/ethernet/eth_nxp_enet.c
++++ b/drivers/ethernet/eth_nxp_enet.c
+@@ -269,6 +269,14 @@ static void eth_nxp_enet_clear_tx_chksum(uint8_t *frame, size_t len)
+ 	}
+ }
+ 
++/* Called from the interrupt when the MAC reports a frame transmitted.
++ * Applications may override it, e.g. to drive a GPIO that marks each frame
++ * on the wire.
++ */
++__weak void eth_nxp_enet_tx_done_hook(void)
++{
++}
++
+ static int eth_nxp_enet_tx(const struct device *dev, struct net_pkt *pkt)
+ {
+ 	struct nxp_enet_mac_data *data = dev->data;
+@@ -630,6 +638,7 @@ static void eth_callback(ENET_Type *base, enet_handle_t *handle,
+ 		k_sem_give(&data->rx_thread_sem);
+ 		break;
+ 	case kENET_TxEvent:
++		eth_nxp_enet_tx_done_hook();
+ 		ts_register_tx_event(dev, frameinfo);
+ 		k_sem_give(&data->tx_buf_sem);
+ 		break;

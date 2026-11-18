@@ -1,0 +1,27 @@
+diff --git a/mcux/mcux-sdk-ng/drivers/enet/fsl_enet.c b/mcux/mcux-sdk-ng/drivers/enet/fsl_enet.c
+index 33a5a841..5175da74 100644
+--- a/mcux/mcux-sdk-ng/drivers/enet/fsl_enet.c
++++ b/mcux/mcux-sdk-ng/drivers/enet/fsl_enet.c
+@@ -1091,6 +1091,14 @@ static inline void ENET_ActiveReadRing(ENET_Type *base, uint8_t ringId)
+     }
+ }
+ 
++/* Called immediately before the transmit DMA is started; applications may
++ * override it, e.g. to drive a GPIO that marks frame transmission.
++ */
++__WEAK void ENET_TxActivateHook(ENET_Type *base)
++{
++    (void)base;
++}
++
+ /*!
+  * brief Activates frame sending for specified ring.
+  * note This must be called after the MAC configuration and
+@@ -1144,6 +1152,7 @@ static void ENET_ActiveSendRing(ENET_Type *base, uint8_t ringId)
+ #endif
+ 
+     /* Write to active tx descriptor */
++    ENET_TxActivateHook(base);
+     *txDesActive = 0;
+ }
+ 

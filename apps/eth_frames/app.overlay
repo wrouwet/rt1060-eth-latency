@@ -1,0 +1,25 @@
+/* A MAC address that stays the same across reboots, derived from the chip's
+ * unique ID, so a receiver can filter on it. The board default is random.
+ */
+&enet_mac {
+	/delete-property/ zephyr,random-mac-address;
+	nxp,unique-mac;
+};
+
+/* Transmit marker: Arduino header D6 (GPIO_AD_B1_02) goes high while each frame
+ * is being handed to the Ethernet driver.
+ */
+/ {
+	zephyr,user {
+		tx-gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+/* The PTP clock's default pins would make D6 its event output, taking the
+ * marker pin; keep only the event input (D7).
+ */
+&pinmux_ptp {
+	group0 {
+		pinmux = <&iomuxc_gpio_ad_b1_03_enet_1588_event2_in>;
+	};
+};
